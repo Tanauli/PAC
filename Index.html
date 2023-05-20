@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pac-Man</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    
+    #game {
+      position: relative;
+      width: 450px;
+      height: 450px;
+      margin: 20px auto;
+      border: 2px solid #000;
+    }
+    
+    .pacman {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background: yellow;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+    
+    .dot {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      background: #000;
+      border-radius: 50%;
+    }
+    
+    .ghost {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background: red;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <div id="game"></div>
+
+  <script>
+    // Game configuration
+    const GRID_SIZE = 15;
+    const CELL_SIZE = 30;
+    const PLAYER_SPEED = 100;
+    const GHOST_SPEED = 150;
+
+    // Game state
+    let player = {
+      x: 0,
+      y: 0,
+      direction: 'right'
+    };
+
+    let ghosts = [
+      { x: 3, y: 3 },
+      { x: 10, y: 10 },
+      { x: 12, y: 12 }
+    ];
+
+    let dots = [
+      { x: 1, y: 2 },
+      { x: 3, y: 4 },
+      { x: 8, y: 5 },
+      { x: 13, y: 6 },
+      { x: 10, y: 10 }
+    ];
+
+    function createDot(x, y) {
+      const dot = document.createElement('div');
+      dot.className = 'dot';
+      dot.style.left = `${x * CELL_SIZE + CELL_SIZE / 2}px`;
+      dot.style.top = `${y * CELL_SIZE + CELL_SIZE / 2}px`;
+      return dot;
+    }
+
+    function createPacman() {
+      const pacman = document.createElement('div');
+      pacman.className = 'pacman';
+      pacman.style.left = `${player.x * CELL_SIZE}px`;
+      pacman.style.top = `${player.y * CELL_SIZE}px`;
+      return pacman;
+    }
+
+    function createGhost(x, y) {
+      const ghost = document.createElement('div');
+      ghost.className = 'ghost';
+      ghost.style.left = `${x * CELL_SIZE}px`;
+      ghost.style.top = `${y * CELL_SIZE}px`;
+      return ghost;
+    }
+
+    function renderGame() {
+      const game = document.getElementById('game');
+      game.innerHTML = '';
+
+      dots.forEach(dot => {
+        const dotElement = createDot(dot.x, dot.y);
+        game.appendChild(dotElement);
+      });
+
+      const pacman = createPacman();
+      game.appendChild(pacman);
+
+      ghosts.forEach(ghost => {
+        const ghostElement = createGhost(ghost.x, ghost.y);
+        game.appendChild(ghostElement);
+      });
+    }
+
+    function handleKeyDown(event) {
+      switch (event.key) {
+        case 'ArrowUp':
+          player.direction = 'up';
+          break;
+        case 'ArrowDown':
+          player.direction = 'down';
+          break;
+        case 'ArrowLeft':
+          player.direction = 'left';
+          break;
+        case 'ArrowRight':
+          player.direction = 'right';
+          break;
+      }
+    }
+
+    function movePlayer() {
+      switch (player.direction) {
+        case 'up':
+          if (player.y > 0) player.y--;
+          break;
+        case 'down':
+          if (player.y < GRID_SIZE - 1) player.y++;
+          break;
+        case 'left':
+          if (player.x > 0) player.x--;
+          break;
+        case 'right':
+          if (player.x < GRID_SIZE - 1) player.x++;
+          break;
+      }
+    }
+
+    function moveGhosts() {
+      ghosts.forEach(ghost => {
+        const directions = ['up', 'down', 'left', 'right'];
+        const randomIndex = Math.floor(Math.random() * directions.length);
+        const randomDirection = directions[randomIndex];
+
+        switch (randomDirection) {
+          case 'up':
+            if (ghost.y > 0) ghost.y--;
+            break;
+          case 'down':
+            if (ghost.y < GRID_SIZE - 1) ghost.y++;
+            break;
+          case 'left':
+            if (ghost.x > 0) ghost.x--;
+            break;
+          case 'right':
+            if (ghost.x < GRID_SIZE - 1) ghost.x++;
+            break;
+        }
+      });
+    }
+
+    function checkCollisions() {
+      // Check collisions with dots
+      dots.forEach((dot, index) => {
+        if (player.x === dot.x && player.y === dot.y) {
+          dots.splice(index, 1);
+        }
+      });
+
+      // Check collisions with ghosts
+      ghosts.forEach(ghost => {
+        if (player.x === ghost.x && player.y === ghost.y) {
+          alert('Game Over!');
+          resetGame();
+        }
+      });
+    }
+
+    function resetGame() {
+      player = {
+        x: 0,
+        y: 0,
+        direction: 'right'
+      };
+
+      ghosts = [
+        { x: 3, y: 3 },
+        { x: 10, y: 10 },
+        { x: 12, y: 12 }
+      ];
+
+      dots = [
+        { x: 1, y: 2 },
+        { x: 3, y: 4 },
+        { x: 8, y: 5 },
+        { x: 13, y: 6 },
+        { x: 10, y: 10 }
+      ];
+
+      renderGame();
+    }
+
+    function updateGame() {
+      movePlayer();
+      moveGhosts();
+      checkCollisions();
+      renderGame();
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    setInterval(updateGame, PLAYER_SPEED);
+  </script>
+</body>
+</html>
